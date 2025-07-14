@@ -29,6 +29,11 @@ wss.on('connection', ws => {
       fullAmount = data.fullAmount * 10;
       broadcastProgress();
     }
+
+    if (data.type === 'resetFullAmount') {
+      fullAmount = 10;
+      broadcastProgress();
+    }
   });
 });
 
