@@ -1,15 +1,9 @@
-const WebSocket = require('ws');
-
-const wss = new WebSocket.Server({ port: process.env.PORT || 3000 });
-
 let progress = 0;
-const fullAmount = 10;
+let fullAmount = 10;
 
 wss.on('connection', ws => {
-  // Отправляем текущий прогресс новому клиенту
-  ws.send(JSON.stringify({ type: 'update', progress }));
+  ws.send(JSON.stringify({ type: 'update', progress, fullAmount }));
 
-  // Получаем сообщение от клиента
   ws.on('message', message => {
     const data = JSON.parse(message);
 
@@ -18,15 +12,26 @@ wss.on('connection', ws => {
       if (progress > fullAmount) {
         progress = 0;
       }
+      broadcastProgress();
+    }
 
-      // Рассылаем обновлённый прогресс всем клиентам
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(JSON.stringify({ type: 'update', progress }));
-        }
-      });
+    if (data.type === 'reset') {
+      progress = 0;
+      broadcastProgress();
+    }
+
+    if (data.type === 'setFullAmount') {
+      fullAmount = data.fullAmount;
+      // отправляем всем обновлённое значение
+      broadcastProgress();
     }
   });
 });
 
-console.log('WebSocket сервер запущен');
+function broadcastProgress() {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({ type: 'update', progress, fullAmount }));
+    }
+  });
+}
