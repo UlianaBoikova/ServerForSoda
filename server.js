@@ -26,7 +26,7 @@ wss.on('connection', ws => {
     }
 
     if (data.type === 'setFullAmount') {
-      fullAmount = data.fullAmount * 10;
+      fullAmount = fullAmount * 10;
       broadcastProgress();
     }
 
