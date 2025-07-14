@@ -1,3 +1,8 @@
+const WebSocket = require('ws');
+
+// Создаём WebSocket сервер на порту 3000
+const wss = new WebSocket.Server({ port: process.env.PORT || 3000 });
+
 let progress = 0;
 let fullAmount = 10;
 
@@ -22,7 +27,6 @@ wss.on('connection', ws => {
 
     if (data.type === 'setFullAmount') {
       fullAmount = data.fullAmount;
-      // отправляем всем обновлённое значение
       broadcastProgress();
     }
   });
@@ -35,3 +39,5 @@ function broadcastProgress() {
     }
   });
 }
+
+console.log('WebSocket сервер запущен на порту ' + (process.env.PORT || 3000));
